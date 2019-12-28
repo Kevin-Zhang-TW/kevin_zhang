@@ -20,7 +20,7 @@ DEF='\033[0m'
 testcnt=0
 total_time=0
 # cnt normal
-for i in "$path/*.in"
+for i in ${path}/*.in
 do
 	((++testcnt))
 done
