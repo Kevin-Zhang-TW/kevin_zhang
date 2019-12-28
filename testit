@@ -38,7 +38,6 @@ do
 	if [ $tostatus == 124 ]
 	then 
 		echo -e "${BLUE}TLE ∞"
-
 		((++tlecnt))
 	else if [ "$verdict" != "" ]
 	then
@@ -68,6 +67,10 @@ else
 	echo -e "${RED}WA  ${GREEN}$accnt${RED} / $testcnt\c"
 fi
 fi
+if [ $tlecnt != 0 ] 
+then echo "   Run Time : ∞" 
+else
 echo "  Run Time : $total_time"
+fi
 echo -e $DEF
 
