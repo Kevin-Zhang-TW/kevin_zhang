@@ -20,7 +20,7 @@ DEF='\033[0m'
 testcnt=0
 total_time=0
 # cnt normal
-for i in $path/*.in
+for i in "$path/*.in"
 do
 	((++testcnt))
 done
@@ -29,12 +29,12 @@ done
 for (( i = 1;i <= $testcnt; ++i))
 do
 	start_t=$(date +%s%N)
-	timeout --foreground $(($max_run_time / 1000+1)) $file<$path/$i.in>$path/tmp.out
+	timeout --foreground $(($max_run_time / 1000+1)) "$file"<"$path/$i.in">"$path/tmp.out"
 	tostatus=$?
 	end_t=$(date +%s%N)
 	time_elapsed=$((($end_t - $start_t) / 1000000))
 	printf "${DEF}Running test case %3d  " $i
-	verdict=$(diff $path/tmp.out $path/$i.out)
+	verdict=$(diff "$path/tmp.out" "$path/$i.out")
 	if [ $tostatus == 124 ]
 	then 
 		echo -e "${BLUE}TLE ∞"
@@ -57,7 +57,7 @@ do
 	((total_time += time_elapsed))
 done
 # Get the verdicts
-rm $path/tmp.out
+rm "$path/tmp.out"
 if [ $accnt == $testcnt ] 
 then 
 	echo -e "${GREEN}AC $accnt / $testcnt\c"
