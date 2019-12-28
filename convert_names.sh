@@ -1,9 +1,11 @@
 #!/bin/sh
-for i in ./I.*
+path=~/Downloads/test_data/
+for i in $path/I.*
 do
- 	mv $i "${i##*.}".in
+ 	mv $i ${path}"${i##*.}".in
 done
-for i in ./O.*
+for i in $path/O.*
 do
-	mv $i "${i##*.}".out
+	mv $i ${path}"${i##*.}".out
 done
+echo transform complete ~ 
