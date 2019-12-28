@@ -1,1 +1,1 @@
-# kevin_zhang
+# Training with USACO problems
