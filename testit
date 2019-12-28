@@ -8,6 +8,7 @@ path=~/Downloads/test_data
 
 file=~/run.in
 
+max_run_time=1000
 ####               ####
 
 accnt=0
@@ -28,12 +29,18 @@ done
 for (( i = 1;i <= $testcnt; ++i))
 do
 	start_t=$(date +%s%N)
-	$file<$path/$i.in>$path/tmp.out
+	timeout --foreground $(($max_run_time / 1000+1)) $file<$path/$i.in>$path/tmp.out
+	tostatus=$?
 	end_t=$(date +%s%N)
 	time_elapsed=$((($end_t - $start_t) / 1000000))
 	printf "${DEF}Running test case %3d  " $i
 	verdict=$(diff $path/tmp.out $path/$i.out)
-	if [ "$verdict" != "" ]
+	if [ $tostatus == 124 ]
+	then 
+		echo -e "${BLUE}TLE ∞"
+
+		((++tlecnt))
+	else if [ "$verdict" != "" ]
 	then
 		echo -e "${RED}WA \c"
 	else if (($time_elapsed <= 1000))
@@ -46,6 +53,7 @@ do
 		fi
 	fi
 	printf "%6d ms\n" $time_elapsed
+	fi
 	((total_time += time_elapsed))
 done
 # Get the verdicts
@@ -57,7 +65,7 @@ else if [ $tlecnt != 0 ]
 	then
 	echo -e "${BLUE}TLE ${GREEN}$accnt${BLUE} / $testcnt\c"
 else 
-	echo -e "${RED}WA  ${GREEN}$accnt${BLUE} / $testcnt\c"
+	echo -e "${RED}WA  ${GREEN}$accnt${RED} / $testcnt\c"
 fi
 fi
 echo "  Run Time : $total_time"
