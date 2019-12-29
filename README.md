@@ -1,4 +1,4 @@
-# Training with USACO problems
+# A Local Judge script
 ## Usage
   1. Download the testit file, it's a scrip which tells you your verdict
   2. Modify the variable { path, file } to what you want
