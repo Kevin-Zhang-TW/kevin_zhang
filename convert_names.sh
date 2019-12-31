@@ -1,19 +1,26 @@
 #!/bin/sh
 working_dir=~/Downloads
-path=$working_dir/test_data
-read dir
-if [ $dir != "test_data" ]
+target=~/test_data
+test_zip=${1:-""}
+if [ $test_zip == "" ]
+then
+	read test_zip
+fi
+
+if [ $test_zip != "test_data" ]
 then
 	rm $working_dir/test_data/*
-	unzip $working_dir/${dir}.zip -d $working_dir/test_data
+	unzip $working_dir/${test_zip}.zip -d $target
 fi
-for i in $path/I.*
+## transform formats
+for i in $target/I.*
 do
- 	mv $i ${path}/"${i##*.}".in
+ 	mv $i ${target}/"${i##*.}".in
 done
-for i in $path/O.*
+for i in $target/O.*
 do
-	mv $i ${path}/"${i##*.}".out
+	mv $i ${target}/"${i##*.}".out
 done
-rm $working_dir/$dir.zip
+## delete zip file
+rm $working_dir/$test_zip.zip
 echo transform complete ~ 
