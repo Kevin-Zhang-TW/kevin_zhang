@@ -2,7 +2,7 @@
 ####    initialize ####
 # path of test data
 
-path=~/Downloads/test_data
+path=~/test_data
 
 # file to execute
 
