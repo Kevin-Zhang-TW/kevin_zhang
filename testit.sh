@@ -8,7 +8,7 @@ path=~/test_data
 
 file=~/run.in
 
-# Limits in 
+# Limits in
 ## ms
 time_limit=2000
 ## kB
@@ -26,9 +26,8 @@ BLUE='\033[0;34m'
 DEF='\033[0m'
 testcnt=0
 total_time=0
-#ulimit -S
+ulimit -S -s $memory_limit
 ulimit -v $memory_limit
-
 # cnt normal
 for i in ${path}/*.in
 do
@@ -39,15 +38,15 @@ echo ""
 # Run testcases
 for (( i = 1;i <= $testcnt; ++i))
 do
+	printf "${DEF}Test Data %3d ---------- " $i
 	start_t=$(date +%s%N)
 	timeout --foreground $time_out_value $file<$path/$i.in>$path/tmp.out
 	tostatus=$?
 	end_t=$(date +%s%N)
 	time_elapsed=$((($end_t - $start_t) / 1000000))
-	printf "${DEF}Test Data %3d ---------- " $i
 	verdict=$(diff "$path/tmp.out" "$path/$i.out")
 	if [ $tostatus == 124 ]
-	then 
+	then
 		echo -e "${BLUE}TLE ∞"
 		((++tlecnt))
 	else if [ "$verdict" != "" ]
@@ -57,7 +56,7 @@ do
 		then
 			echo -e "${GREEN}AC \c"
 			((++accnt))
-		else 
+		else
 			echo -e "${BLUE}TLE\c"
 			((++tlecnt))
 		fi
@@ -69,18 +68,18 @@ done
 # Get the verdicts
 echo ""
 rm "$path/tmp.out"
-if [ $accnt == $testcnt ] 
-then 
+if [ $accnt == $testcnt ]
+then
 	echo -e "${GREEN}AC $accnt / $testcnt\c"
 else if [ $tlecnt != 0 ]
 	then
 	echo -e "${BLUE}TLE ${GREEN}$accnt${BLUE} / $testcnt\c"
-else 
+else
 	echo -e "${RED}WA  ${GREEN}$accnt${RED} / $testcnt\c"
 fi
 fi
-if [ $tlecnt != 0 ] 
-then echo "     Total Run Time : ∞" 
+if [ $tlecnt != 0 ]
+then echo "     Total Run Time : ∞"
 else
 echo "     Total Run Time : $total_time ms"
 fi
