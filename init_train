@@ -1,0 +1,46 @@
+#!/bin/bash
+working_dir=~/Downloads
+target=~/train_data
+
+if [ ! -z "$(ls -A $target)" ]; then
+	echo removing old test suits
+	rm $target/* -r
+fi
+make_data () {
+	file=$1
+	if [ ! -f $working_dir/$file.zip ];
+	then 
+		echo file $file not exist ! 
+		return 0
+	fi
+	unzip $working_dir/$file.zip -d $target/$file/
+	return 1
+}
+read -p "pA : " A
+make_data $A
+while [ "$?" -eq "0"  ]
+do
+read -p "pA : " A
+make_data $A
+done
+
+read -p "pB : " B
+make_data $B
+while [ "$?" -eq "0"  ]
+do
+read -p "pB : " B
+make_data $B
+done
+
+read -p "pC : " C
+make_data $C
+while [ "$?" -eq "0"  ]
+do
+read -p "pC : " C
+make_data $C
+done
+
+
+
+
+echo all data is ready
