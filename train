@@ -1,0 +1,120 @@
+#!/bin/bash
+working_dir=~/Downloads
+target=~/train_data
+duration=4
+default_file_path=~/Documents/Code/contest
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+DEF='\033[0m'
+
+printf "all zip files ----- \n\n"
+for file in $working_dir/*.zip
+do
+	echo ${file#"$working_dir/"}
+done
+echo
+
+###
+if true 
+then
+###
+
+if [ ! -z "$(ls -A $target)" ]; then
+	rm $target/* -r
+	echo old test suits removed----- 
+fi
+
+declare -A prob
+declare -A score_per
+score_per[A]=0
+score_per[B]=0
+score_per[C]=0
+
+make_data () {
+	cd $workingdir
+	id=$1
+	read -e -p "p$id : " file
+	while [ ! -f $working_dir/$file.zip ]
+	do
+		echo file $file not exist ! 
+		read -e -p "p$id : " file
+	done
+	unzip -q $working_dir/$file.zip -d $target/$file/
+	echo "p$id is set to $file"
+	prob["$id"]="$file"
+}
+make_data A
+make_data B
+make_data C
+echo all data is ready
+cpath=$default_file_path
+#read -p "The Folder containing your Code ?
+#(Default by $default_file_path [Enter to continue]) " -i "$default_file_path"  cpath
+#cpath=${cpath:-"$default_file_path"}
+#echo path is set to $cpath
+read -p "Wanna Start ? [y, n]" to_start
+while [ "$to_start" != "y" ]
+do
+	read -p "Wanna Start ? [y, n]" to_start
+done
+echo "Contest Started !"
+echo
+echo "You have $duration hours, please make good use of it"
+echo
+###
+fi
+###
+printprob() {
+	id=$1
+	printf "Problem $id ${prob["$id"]} : "
+	if [ ${score_per[$id]} -eq 100 ]
+	then
+		printf ${GREEN}${score_per["$id"]} 
+	else
+		printf ${RED}${score_per["$id"]}
+	fi
+	printf "${GREEN} / 100 $DEF \n\n"
+}
+		
+show_score() {
+	printprob A
+	printprob B
+	printprob C
+}
+cur_score=0
+full_score=300
+start_t=$(date +%s%N)
+tmpc=0
+while read -p "submit to problem ? " sid && read -p "file name ? " file;
+do
+	((++tmpc))
+	if [ $((($(date +%s%N) - $start_t) / 1000000000)) -gt $(($duration * 60 * 60)) ]
+	then
+		echo Contest is over.. QAQ
+		break
+	fi
+	sid=${sid^^}
+
+	if [[ "$sid" != "A" && "$sid" != "B" && "$sid" != "C" ]]
+   	then
+		echo problem $sid not exist
+		continue
+	fi
+	echo submit success
+	echo problem $sid code location $cpath/$file.cpp
+	g++ -std=c++14 $cpath/$file.cpp -o $target/tmp
+	if [ $? -ne 0 ]
+	then
+		echo Compile Error
+		continue
+	fi
+	echo Compile Succeeded !
+#echo testdata in $target/${prob["$sid"]} compile file
+	testit $target/${prob["$sid"]} $target/tmp
+	score_per["$sid"]=$(( ${score_per["$sid"]} > $? ? ${score_per["$sid"]} : $?))
+	echo "score of problem $sid is ${score_per["$sid"]} / 100"
+	show_score
+done
+printf "Contest Is Over Showing results\n\n"
+show_score
+printf "$GREEN Total Score : $((${score_per[A]} + ${score_per[B]} + ${score_per[C]})) / 300 $DEF\n"
