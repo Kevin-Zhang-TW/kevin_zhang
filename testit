@@ -1,17 +1,18 @@
 #!/bin/sh
 ####    initialize ####
 # path of test data
+cd
 path=${1:-~/test_data}
 # file to execute
 submission=${2:-~/run.in}
 # echo Path $path Sub $submission
 # Limits in
 ## ms
-time_limit=2000;
+time_limit=${3:-2000}
 ## kB
-memory_limit=256000
+memory_limit=${4:-256000}
 ## sec
-time_out_value=2.5
+time_out_value=${5:-$((time_limit / 1000)).5}
 ####               ####
 accnt=0
 tlecnt=0
@@ -89,5 +90,5 @@ then
 else
 	echo -e "${RED}WA  ${GREEN}$accnt${RED} / $testcnt\c"
 fi
-printf "   Total Run Time : %7d ms$DEF" $total_time
+printf "   Total Run Time : %8d ms$DEF\n\n" $total_time
 exit $(($accnt * 100 / $testcnt))
