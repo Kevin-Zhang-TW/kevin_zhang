@@ -7,6 +7,7 @@ path=${1:-~/test_data}
 # file to execute
 
 submission=${2:-~/run.in}
+# echo Path $path Sub $submission
 
 # Limits in
 ## ms
@@ -21,9 +22,11 @@ time_out_value=2.5
 
 accnt=0
 tlecnt=0
+recnt=0
 RED='\033[0;31m'
 GREEN='\033[1;32m'
-BLUE='\033[0;34m'
+YEL='\033[1;33m'
+BLUE='\033[1;34m'
 DEF='\033[0m'
 testcnt=0
 total_time=0
@@ -41,12 +44,16 @@ do
 	((++testcnt))
 	printf "${DEF}Test Data %3d ---------- " $i
 	start_t=$(date +%s%N)
-	bash -c "timeout --foreground $time_out_value $submission<$path/$i.in>$path/tmp.out" 2> /dev/null
+	ERR=$(bash -c "timeout --foreground $time_out_value $submission<$path/$i.in>$path/tmp.out" 2>&1)
 	tostatus=$?
 	end_t=$(date +%s%N)
 	time_elapsed=$((($end_t - $start_t) / 1000000))
 	verdict=$(diff "$path/tmp.out" "$path/$i.out")
-	if [ $tostatus -eq 124 ]
+	if [ "$ERR" != "" ]
+	then 
+		echo -e "${YEL}RE \c"
+		((++recnt))
+	elif [ $tostatus -eq 124 ]
 	then
 		echo -e "${BLUE}TLE ∞"
 		((++tlecnt))
@@ -72,12 +79,14 @@ rm "$path/tmp.out"
 if [ $accnt == $testcnt ]
 then
 	echo -e "${GREEN}AC $accnt / $testcnt\c"
-else if [ $tlecnt != 0 ]
-	then
+elif [ $recnt != 0 ]
+then
+	echo -e "${YEL}RE ${GREEN}$accnt${YEL} / $testcnt\c"
+elif [ $tlecnt != 0 ]
+then
 	echo -e "${BLUE}TLE ${GREEN}$accnt${BLUE} / $testcnt\c"
 else
 	echo -e "${RED}WA  ${GREEN}$accnt${RED} / $testcnt\c"
-fi
 fi
 if [ $tlecnt != 0 ]
 then echo "     Total Run Time : ∞"
