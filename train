@@ -15,6 +15,7 @@ display_zip () {
 		echo ${file#"$working_dir/"}
 	done
 	echo
+	
 }
 make_data () {
 	cd $working_dir
@@ -89,10 +90,10 @@ cpath=$default_file_path
 #(Default by $default_file_path [Enter to continue]) " -i "$default_file_path"  cpath
 #cpath=${cpath:-"$default_file_path"}
 #echo path is set to $cpath
-read -p "Wanna Start ? [y, n] : " to_start
+read -p "Wanna Start ? [y, n] " to_start
 while [ "$to_start" != "y" ]
 do
-	read -p "Wanna Start ? [y, n] : " to_start
+	read -p "Wanna Start ? [y, n] " to_start
 done
 printf "\nContest Started !\n"
 printf "You have $duration hours, please make good use of it\n\n"
@@ -129,7 +130,7 @@ do
 	fi
 	printf "Compiling\n\n"
 	g++ -std=c++14 $cpath/$file.cpp -o $target/tmp
-	if [ $? -ne 0 ]
+	if (( $? != 0))
 	then
 		echo Compile Error
 		continue
@@ -146,6 +147,10 @@ printf "Contest Is Over Showing results\n\n"
 show_score
 got_score=$((${score_per[A]} + ${score_per[B]} + ${score_per[C]}))
 printf "$GREEN Total Score : "
-if [ $get_score -le 300 ]; then
-printf "${RED}"
+if (( $got_score < 300 )); then
+	printf "${RED}"
+else
+	printf "${GREEN}"
+fi
 printf "$got_score ${GREEN} / 300 $DEF\n"
+
