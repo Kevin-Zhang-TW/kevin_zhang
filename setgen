@@ -1,0 +1,11 @@
+#!/bin/bash
+read -e -p "Generator ? " generator
+read -e -p "Solver ? " solver
+read -e -p "Destination ? " des
+printf "generator=$generator\nsolver=$solver\ndes=$des\n" > ~/.config/myconf/gen.conf
+if [ ! -f $des ]
+then
+	mkdir $des
+	echo $des Created
+fi
+
