@@ -1,14 +1,10 @@
 #!/bin/sh
 ####    initialize ####
 # path of test data
-
 path=${1:-~/test_data}
-
 # file to execute
-
 submission=${2:-~/run.in}
 # echo Path $path Sub $submission
-
 # Limits in
 ## ms
 time_limit=2000;
@@ -17,7 +13,6 @@ memory_limit=256000
 ## sec
 time_out_value=2.5
 ####               ####
-
 accnt=0
 tlecnt=0
 recnt=0
@@ -27,17 +22,17 @@ GREEN='\033[1;32m'
 YEL='\033[1;33m'
 BLUE='\033[1;34m'
 DEF='\033[0m'
+numregex='^[0-9]+$'
 testcnt=0
 total_time=0
-ulimit -S -s $(($memory_limit*4)) -v $(($memory_limit*4))
+ulimit -S -s $memory_limit -v $(($memory_limit*4))
 # cnt normal
 printf "\nResult ------------------------------\n"
 echo ""
 # Run testcases
-for (( i = 1;; ++i))
+for (( i = 1; ; ++i))
 do
-	if [ ! -f $path/$i.in ];
-	then
+	if [ ! -f $path/$i.in ]; then
 		break;
 	fi
 	((++testcnt))
@@ -45,24 +40,18 @@ do
 	start_t=$(date +%s%N)
 	MEM=$(/usr/bin/time -q -f "%M" bash -c "(timeout --preserve-status --foreground $time_out_value $submission<$path/$i.in>$path/tmp.out)2>/dev/null" 2>&1)
 	ERR=$?
-	re='^[0-9]+$'
-	if ! [[ $MEM =~ $re ]]; then
+	end_t=$(date +%s%N)
+	if ! [[ $MEM =~ $numregex ]]; then
 		MEM=-1
 		ERR=1
 	fi
-	end_t=$(date +%s%N)
 	time_elapsed=$((($end_t - $start_t) / 1000000))
 	verdict=$(diff "$path/tmp.out" "$path/$i.out")
+	rm "$path/tmp.out"
 	if (($ERR != 0 && $ERR != 143))
 	then 
-#	if [ "$ERR" != "" ]
-#	then 
 		echo -e "${YEL}RE \c"
 		((++recnt))
-#	elif [ $tostatus -eq 124 ]
-#	then
-#		echo -e "${BLUE}TLE ∞"
-#		((++tlecnt))
 	elif (($MEM > $memory_limit))
 	then
 		echo -e "${YEL}MLE \c"
@@ -80,12 +69,11 @@ do
 			((++accnt))
 		fi
 	fi
-	printf "%6d ms %6d KB\n" $time_elapsed $MEM
+	printf "%6d ms %8d KB\n" $time_elapsed $MEM
 	((total_time += time_elapsed))
 done
 # Get the verdicts
 echo ""
-rm "$path/tmp.out"
 if [ $accnt == $testcnt ]
 then
 	echo -e "${GREEN}AC $accnt / $testcnt\c"
@@ -101,10 +89,5 @@ then
 else
 	echo -e "${RED}WA  ${GREEN}$accnt${RED} / $testcnt\c"
 fi
-if [ $tlecnt != 0 ]
-then echo "     Total Run Time : ∞"
-else
-echo "     Total Run Time : $total_time ms"
-fi
-echo -e $DEF
+printf "   Total Run Time : %7d ms$DEF" $total_time
 exit $(($accnt * 100 / $testcnt))
