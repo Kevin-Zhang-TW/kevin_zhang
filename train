@@ -5,30 +5,17 @@ duration=4
 default_file_path=~/Documents/Code/contest
 RED='\033[1;31m'
 GREEN='\033[1;32m'
+YEL='\033[1;33m'
+BLUE='\033[1;34m'
 DEF='\033[0m'
-printf "all zip files ----- \n\n"
-for file in $working_dir/*.zip
-do
-	echo ${file#"$working_dir/"}
-done
-echo
-
-###
-if true 
-then
-###
-
-if [ ! -z "$(ls -A $target)" ]; then
-	rm $target/* -r
-	echo old test suits removed----- 
-fi
-
-declare -A prob
-declare -A score_per
-score_per[A]=0
-score_per[B]=0
-score_per[C]=0
-
+display_zip () {
+	printf "All zip files ----- \n\n"
+	for file in $working_dir/*.zip
+	do
+		echo ${file#"$working_dir/"}
+	done
+	echo
+}
 make_data () {
 	cd $working_dir
 	id=$1
@@ -44,9 +31,58 @@ make_data () {
 #echo "p$id is set to $file"
 	prob["$id"]="$file"
 }
-make_data A
-make_data B
-make_data C
+printprob() {
+	id=$1
+	printf "Problem $id ${prob["$id"]} : "
+	if [ ${score_per[$id]} -eq 100 ]
+	then
+		printf ${GREEN}${score_per["$id"]} 
+	else
+		printf ${RED}${score_per["$id"]}
+	fi
+	printf "${GREEN} / 100 $DEF \n\n"
+}
+show_score() {
+	printprob A
+	printprob B
+	printprob C
+}
+display_zip
+
+###
+if true 
+then
+###
+declare -A prob
+declare -A score_per
+score_per[A]=0
+score_per[B]=0
+score_per[C]=0
+
+if [ ! -z "$(ls -A $target)" ]; then
+#	old_prob=""
+#	for file in $target/*
+#	do
+#		echo "OLD ${file#$target/}"
+#		old_prob="$old_prob ${file#$target/}"
+#		#old_prob="$old_prob $file"
+#	done
+#	read -p "Using Old Problems ? $old_prob [y, n] : " sta
+#	if [ $sta != "y" ]; then
+	rm $target/* -r
+	echo Old test suits removed----- 
+# 		make_data A
+# 		make_data B
+# 		make_data C
+# 	else
+# 		echo "NOT YET"
+# 	fi
+# else
+	make_data A
+	make_data B
+	make_data C
+fi
+
 printf "Test Suits Are Ready\n\n"
 cpath=$default_file_path
 #read -p "The Folder containing your Code ?
@@ -63,22 +99,13 @@ printf "You have $duration hours, please make good use of it\n\n"
 ###
 fi
 ###
-printprob() {
-	id=$1
-	printf "Problem $id ${prob["$id"]} : "
-	if [ ${score_per[$id]} -eq 100 ]
-	then
-		printf ${GREEN}${score_per["$id"]} 
-	else
-		printf ${RED}${score_per["$id"]}
-	fi
-	printf "${GREEN} / 100 $DEF \n\n"
-}
 		
-show_score() {
-	printprob A
-	printprob B
-	printprob C
+
+checkit() {
+	echo
+}
+cur_time() {
+	echo $((($(date +%s%N) - $start_t) / 1000000000))
 }
 cur_score=0
 full_score=300
@@ -87,7 +114,8 @@ tmpc=0
 while read -p "Submit to problem ? " sid && read -p "File name ? " file;
 do
 	((++tmpc))
-	if [ $((($(date +%s%N) - $start_t) / 1000000000)) -gt $(($duration * 60 * 60)) ]
+	echo "Cur Time : $(cur_time)"
+	if [ $(cur_time) -gt $(($duration * 60 * 60)) ]
 	then
 		echo Contest is over.. QAQ
 		break
@@ -112,7 +140,12 @@ do
 	testit $target/${prob["$sid"]} $target/tmp
 	score_per["$sid"]=$(( ${score_per["$sid"]} > $? ? ${score_per["$sid"]} : $?))
 	show_score
+	rm $target/tmp
 done
 printf "Contest Is Over Showing results\n\n"
 show_score
-printf "$GREEN Total Score : $((${score_per[A]} + ${score_per[B]} + ${score_per[C]})) / 300 $DEF\n"
+got_score=$((${score_per[A]} + ${score_per[B]} + ${score_per[C]}))
+printf "$GREEN Total Score : "
+if [ $get_score -le 300 ]; then
+printf "${RED}"
+printf "$got_score ${GREEN} / 300 $DEF\n"
