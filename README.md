@@ -21,7 +21,3 @@ Stuff to customize :
 ![TLE](https://github.com/Kevin-Zhang-TW/usaco_practice_log/blob/master/TLE.png)
 ![WA](https://github.com/Kevin-Zhang-TW/usaco_practice_log/blob/master/WA.png)
 ![AC](https://github.com/Kevin-Zhang-TW/usaco_practice_log/blob/master/AC.png)
-### unsupported feature
-  1, Segmentation Fault\
-  2. Memory Limit\
-  
