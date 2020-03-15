@@ -13,82 +13,100 @@ time_limit=${3:-2000}
 memory_limit=${4:-256000}
 ## sec
 time_out_value=${5:-$((time_limit / 1000)).5}
+resp=~/Documents/Judge
 ####               ####
 accnt=0
 tlecnt=0
 recnt=0
 mlecnt=0
+testcnt=0
+total_time=0
 RED='\033[1;31m'
 GREEN='\033[1;32m'
 YEL='\033[1;33m'
 BLUE='\033[1;34m'
 DEF='\033[0m'
+BOLD='\033[1;1m'
 numregex='^[0-9]+$'
-testcnt=0
-total_time=0
-ulimit -S -s $memory_limit -v $(($memory_limit*4))
-# cnt normal
-printf "\nResult ------------------------------\n"
-echo ""
-# Run testcases
-for (( i = 1; ; ++i))
-do
-	if [ ! -f $path/$i.in ]; then
-		break;
-	fi
-	((++testcnt))
-	printf "${DEF}Test Data %3d ---------- " $i
+gap="----------"
+VER=("AC" "WA" "TLE" "MLE" "RE")
+COL=($GREEN $RED $BLUE $YEL $YEL)
+mkdir -p $resp
+echo "" > $resp/all.res
+echo "" > $resp/rt.res
+echo "" > $resp/me.res
+# signal 0 : AC, 1 : WA, 2 : TLE, 3 : MLE, 4 : RE
+for((i=0;i<=4;++i)); do
+	cnt[$i]=0
+done
+printf "Result ------------------------------\n\n"
+runtest () {
+	ulimit -S -s $memory_limit -v $(($memory_limit*4))
+	rm $path/$id.res 2>/dev/null
+	id=$1
 	start_t=$(date +%s%N)
-	MEM=$(/usr/bin/time -q -f "%M" bash -c "(timeout --preserve-status --foreground $time_out_value $submission<$path/$i.in>$path/tmp.out)2>/dev/null" 2>&1)
+	MEM=$(/usr/bin/time -q -f "%M" bash -c "(timeout --preserve-status --foreground $time_out_value $submission<$path/$id.in>$path/U$id.out)2>/dev/null" 2>&1)
 	ERR=$?
+	RES=0
 	end_t=$(date +%s%N)
+	RT=$((($end_t - $start_t) / 1000000))
+	VER=("AC" "WA" "TLE" "MLE" "RE")
+	COL=($GREEN $RED $BLUE $YEL $YEL)
 	if ! [[ $MEM =~ $numregex ]]; then
 		MEM=-1
 		ERR=1
 	fi
-	time_elapsed=$((($end_t - $start_t) / 1000000))
-	verdict=$(diff "$path/tmp.out" "$path/$i.out")
-	rm "$path/tmp.out"
-	if (($ERR != 0 && $ERR != 143))
-	then 
-		echo -e "${YEL}RE \c"
-		((++recnt))
-	elif (($MEM > $memory_limit))
-	then
-		echo -e "${YEL}MLE \c"
-		((++mlecnt))
-	elif [ $time_elapsed -gt $time_limit ]
-	then
-		echo -e "${BLUE}TLE\c"
-		((++tlecnt))
-	else
-		if [ "$verdict" != "" ]
-		then
-			echo -e "${RED}WA \c"
-		else
-			echo -e "${GREEN}AC \c"
-			((++accnt))
-		fi
+	if (($ERR != 0 && $ERR != 143)); then
+		RES=4
+	elif (($MEM > $memory_limit)); then
+		RES=3
+	elif (($RT > $time_limit)); then
+		RES=2
+	elif [ "$(diff $path/U$id.out $path/$id.out)" != "" ]; then
+		RES=1
 	fi
-	printf "%6d ms %8d KB\n" $time_elapsed $MEM
-	((total_time += time_elapsed))
+	printf " Test Data  %3d $gap %b%3s %7d ms %7d KB$DEF\n" $id ${COL[$RES]} ${VER[$RES]} $RT $MEM > $path/$id.res
+	printf " $RES" >> $resp/all.res
+	printf " $RT" >> $resp/rt.res
+	printf " $MEM" >> $resp/me.res
+}
+## testing
+# start_t=$(date +%s%N)
+###
+
+for ((i=1;;++i)); do
+	if [ ! -f $path/$i.in ]; then 
+		break
+	fi
+	testcnt=$i
 done
-# Get the verdicts
-echo ""
-if [ $accnt == $testcnt ]
-then
-	echo -e "${GREEN}AC $accnt / $testcnt\c"
-elif [ $recnt != 0 ]
-then
-	echo -e "${YEL}RE ${GREEN}$accnt${YEL} / $testcnt\c"
-elif [ $tlecnt != 0 ]
-then
-	echo -e "${BLUE}TLE ${GREEN}$accnt${BLUE} / $testcnt\c"
-elif [ $mlecnt != 0 ]
-then
-	echo -e "${YEL}MLE ${GREEN}$accnt${YEL} / $testcnt\c"
-else
-	echo -e "${RED}WA  ${GREEN}$accnt${RED} / $testcnt\c"
-fi
-printf "   Total Run Time : %8d ms$DEF\n\n" $total_time
-exit $(($accnt * 100 / $testcnt))
+#Run test parallelly
+for ((i=1;i<=$testcnt;++i)); do
+	runtest $i & 
+	if (((i)%3==0 || i==testcnt)); then
+		wait
+		for((j=i-2;j<=i;++j)); do
+			cat $path/$j.res
+		done
+	fi
+done
+wait
+# end_t=$(date +%s%N)
+for i in $(cat $resp/all.res); do
+	((++cnt[$i]))
+done
+for i in $(cat $resp/rt.res); do
+	((total_time += i))
+done
+for i in $(cat $resp/me.res); do
+	maxmem=$((maxmem > i ? maxmem : i))
+done
+echo
+for((i=4;i>=0;--i)); do
+	if ((${cnt[$i]})); then
+		printf "%b%3s ${GREEN}%3d%b / %3d  Total Run Time : %6d ms  Maximum Memory Usage : %6d KB$DEF\n\n" ${COL[$i]} ${VER[$i]} ${cnt[0]} ${COL[$i]} $testcnt $total_time $maxmem
+		break
+	fi
+done
+exit $((cnt[0] / testcnt))
+# echo "Total Run Time : $((($end_t - $start_t) / 1000000))"
