@@ -8,7 +8,7 @@ submission=${2:-~/run.in}
 # echo Path $path Sub $submission
 # Limits in
 ## ms
-time_limit=${3:-2000}
+time_limit=${3:-8000}
 ## kB
 memory_limit=${4:-256000}
 ## sec
@@ -31,6 +31,10 @@ numregex='^[0-9]+$'
 gap="----------"
 VER=("AC" "WA" "TLE" "MLE" "RE")
 COL=($GREEN $RED $BLUE $YEL $YEL)
+CORECNT=$(($(cat /proc/cpuinfo | grep processor | wc -l))-1)
+if ((CORECNT == 0)) ; then
+	CORECNT=1
+fi
 mkdir -p $resp
 echo "" > $resp/all.res
 echo "" > $resp/rt.res
@@ -45,10 +49,11 @@ runtest () {
 	rm $path/$id.res 2>/dev/null
 	id=$1
 	start_t=$(date +%s%N)
+#timeout --foreground $time_out_value MEM=$(/usr/bin/time -q -f "%M" $submission<$path/$id.in>$path/U$id.out 2>/dev/null)
 	MEM=$(/usr/bin/time -q -f "%M" bash -c "(timeout --preserve-status --foreground $time_out_value $submission<$path/$id.in>$path/U$id.out)2>/dev/null" 2>&1)
 	ERR=$?
-	RES=0
 	end_t=$(date +%s%N)
+	RES=0
 	RT=$((($end_t - $start_t) / 1000000))
 	VER=("AC" "WA" "TLE" "MLE" "RE")
 	COL=($GREEN $RED $BLUE $YEL $YEL)
@@ -83,9 +88,9 @@ done
 #Run test parallelly
 for ((i=1;i<=$testcnt;++i)); do
 	runtest $i & 
-	if (((i)%3==0 || i==testcnt)); then
+	if (((i)%(CORECNT)==0 || i==testcnt)); then
 		wait
-		for((j=i-2;j<=i;++j)); do
+		for((j=(i-1)/CORECNT*CORECNT+1;j<=i;++j)); do
 			cat $path/$j.res
 		done
 	fi
