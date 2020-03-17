@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ####    initialize ####
 # path of test data
 cd
@@ -31,7 +31,7 @@ numregex='^[0-9]+$'
 gap="----------"
 VER=("AC" "WA" "TLE" "MLE" "RE")
 COL=($GREEN $RED $BLUE $YEL $YEL)
-CORECNT=$(($(cat /proc/cpuinfo | grep processor | wc -l))-1)
+CORECNT=$(($(cat /proc/cpuinfo | grep processor | wc -l)-1))
 if ((CORECNT == 0)) ; then
 	CORECNT=1
 fi
@@ -45,7 +45,7 @@ for((i=0;i<=4;++i)); do
 done
 printf "Result ------------------------------\n\n"
 runtest () {
-	ulimit -S -s $memory_limit -v $(($memory_limit*4))
+	ulimit -S -s $(($memory_limit*4)) -v $(($memory_limit*4))
 	rm $path/$id.res 2>/dev/null
 	id=$1
 	start_t=$(date +%s%N)
@@ -113,5 +113,5 @@ for((i=4;i>=0;--i)); do
 		break
 	fi
 done
-exit $((cnt[0] / testcnt))
+exit $((cnt[0] * 100 / testcnt))
 # echo "Total Run Time : $((($end_t - $start_t) / 1000000))"
