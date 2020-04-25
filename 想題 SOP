@@ -41,7 +41,9 @@
 
 WA!!
 	long long
+	debug 的東東要拿掉
 	先做小測資
+	漏CASE!!
 	重讀題目
 TLE!!
 	少用 mod 
