@@ -46,6 +46,7 @@ WA!!
 	漏CASE!!
 	重讀題目
 TLE!!
+	按照迴圈順序 好好使用陣列 盡量連續讀取！！
 	少用 mod 
 	fread_unlocked
 	infinite loop ?
