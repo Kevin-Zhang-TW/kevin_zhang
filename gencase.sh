@@ -1,6 +1,5 @@
 #!/bin/bash
 source ~/.config/myconf/gen.conf
-cd
 BOLD='\e[0;1m'
 RED='\033[1;31m'
 GREEN='\033[1;32m'
@@ -10,7 +9,7 @@ DEF='\033[0m'
 com () {
 	file=$1
 	tar=$2
-	printf "\e[1;34m:: \e[0;1mWanna Recomlie $file? "
+	printf "\e[1;34m::  \e[0;1mWanna Recomlie $file? "
 	read -p $'[Y/n] \e[0m' status
 	if [ "${status^}" != "Y" ]; then
 		return
@@ -59,8 +58,11 @@ do
 	R=${R:-$L}
 	for ((i=$L;i<=$R;++i))
 	do
-		./GEN $A > $des/$S/$i.in
+		if ((A != "RE")); then
+			./GEN $A > $des/$S/$i.in
+		fi
 		./SOL < $des/$S/$i.in > $des/$S/$i.out
 		echo " Test Case $i Generated !"
 	done
 done
+
