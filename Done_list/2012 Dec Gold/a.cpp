@@ -51,9 +51,10 @@ int32_t main() {
 	// if number of numbers other than one is odd, then we need to eliminate at least one with them
 	if ((n - cnt[0]) % 2 == 1 && y == 0) ++y, --x;
 
+	if (x <= 0) return cout << "NO\n", 0;
+	
 	assert(x + y == cnt[0] && min(x, y) >= 0);
 
-	if (x <= 0) return cout << "NO\n", 0;
 
 	// Fid : The id of element in stack, Fcnt : The number of element in stack
 	
