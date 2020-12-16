@@ -86,7 +86,7 @@ int32_t main() {
 	};
 	auto valid = [&](int put_id) {
 		int g = get_most_freq();
-		if (put_id == g || Fcnt == 0 || Fid != put_id) return true;
+		if (put_id == g || Fcnt == 0 || Fid == put_id) return true;
 		return cnt[g] * 2 <= sum + Fcnt - 2;
 	};
 
