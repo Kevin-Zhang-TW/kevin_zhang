@@ -14,7 +14,7 @@ Plug 'joshdick/onedark.vim'
 call plug#end()
 
 
-set ar fdm=manual nu ts=4 sw=4 cindent
+set ar fdm=manual nu ts=4 sw=4 cindent rnu
 sy on
 command Fast r /home/kevin/Documents/Code/templates/fastio.cpp
 command Usaco r /home/kevin/usaco
@@ -22,14 +22,15 @@ set makeprg=g++\ -DKEV\ -std=c++20\ -fsanitize=undefined\ %\ -o\ ~/run
 noremap<F4> ggVGddd"+P
 noremap<C-n> :!ran<CR><CR>
 noremap<F12> :!clear && testit<CR>
-noremap<F5> ggVGd:0 r /home/kevin/Documents/Code/template.cpp<CR>:1,22fold<CR>
+noremap<F5> ggVGd:0 r /home/kevin/Documents/Code/template.cpp<CR>:1,16fold<CR>
 noremap<F9> :!~/run<CR>
-noremap<F7> :w  <CR>:!g++ -DKEV -std=c++20 -I ./ -pipe -fsanitize=undefined "%" -o ~/run<CR>
+noremap<F7> :w  <CR>:!g++ -DKEV -std=c++20 -fsanitize=undefined "%" -o ~/run<CR>
+
 "noremap<silent> <C-F8> :!wl-paste > /home/kevin/Documents/Code/inputf.txt <CR>
 noremap<silent> <C-F8> :!xclip -selection clipboard -o > /home/kevin/Documents/Code/inputf.txt <CR>
 map<F8> <ESC><C-F8>:!clear && printf "            input : \n" && cat /home/kevin/Documents/Code/inputf.txt && printf "\n\n            output : \n" && ~/run</home/kevin/Documents/Code/inputf.txt<CR>
 map<F10> <F7><F8>
-nmap <leader>y ggVG"+y''
+nmap <leader>y :%y+<CR>
 autocmd BufNewFile *.cpp -r ~/Documents/Code/template.cpp
 autocmd BufNewFile *.sh -r ~/basic_script.sh !chmod+x\ %
 autocmd Filetype python map<F7> :w<CR>:!python %<CR>
@@ -64,5 +65,6 @@ au BufRead,BufNewFile *.ino,*.pde map<F9> :!minicom -D /dev/ttyUSB0 -b 38400 <CR
 "For Neovim > 0.1.5 and Vim > patch 7.4.1799 < https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162 >
 "Based on Vim patch 7.4.1770 (`guicolors` option) < https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd >
 " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
+
 
 
